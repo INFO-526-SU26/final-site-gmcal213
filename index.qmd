@@ -1,11 +1,11 @@
 ---
-title: "Project Title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
+title: "Chart Toppers"
+subtitle: "INFO 526 - Summer 2026 - Final Project"
 author: 
-  - name: "Team name"
+  - name: "Gavin Caldwell"
     affiliations:
       - name: "School of Information, University of Arizona"
-description: "Project description"
+description: "This project dives into a data set detailing an extensive amount of information about every single song that has been ranked #1 on the Billboard Hot 100 list from 1958 to 2024"
 format:
    html:
     code-tools: true
