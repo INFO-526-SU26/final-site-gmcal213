@@ -3,7 +3,8 @@
 -   **[topics.csv]**: Supplementary data set containing detailed descriptions for the "lyrical_topic" variable
 
 ## Data Dictionary
-There is a great supplementary Google Sheet maintained by the author of the data set that contains this information as well, linked [here](https://docs.google.com/spreadsheets/d/1j1AUgtMnjpFTz54UdXgCKZ1i4bNxFjf01ImJ-BqBEt0/edit?gid=1974823090#gid=1974823090)
+There is a great supplementary [Google Sheet](https://docs.google.com/spreadsheets/d/1j1AUgtMnjpFTz54UdXgCKZ1i4bNxFjf01ImJ-BqBEt0/edit?gid=1974823090#gid=1974823090) 
+maintained by the author of the dataset that contains this information and some additional material as well.
 
 ### `billboard.csv`
 

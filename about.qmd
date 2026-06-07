@@ -6,4 +6,4 @@ editor: visual
 
 This project was developed by **Gavin Caldwell** For [INFO 526 - Data Analysis and Visualization](https://datavizaz.org/) at the University of Arizona, taught by Dr. Greg Chism. The team is comprised of the following team members:
 
-- Gavin Caldwell: Graduate student in the College of Engineering pursuing an M.S. in Electrical and Computer Engineering
+- Gavin Caldwell: Graduate student in the College of Engineering pursuing an M.S. in Computer Engineering
