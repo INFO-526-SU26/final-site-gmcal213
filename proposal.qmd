@@ -75,7 +75,7 @@ I considered using the "Lyrical Topic" variable as well, but it seems too subjec
 
 The first chart will be taking a look at the BPM (beats per minute) of #1 songs over time. BPM is a measure of how fast or slow a song is. To measure how similar or dissimilar songs are growing over time with this metric I will plot the standard deviation of BPMs used over time.
 
-Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, a letter A-G (with sharp's and flat's) corresponding to one of the twelve notes of Western Music that determines a set of a chords and sounds a song should use to give the song a sense of musical cohesion. \
+Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, a letter A-G (with sharp's and flat's) corresponding to one of the twelve notes of Western Music that determines a set of a chords and sounds a song should use to give the song a sense of musical cohesion.\
 \
 To do this, I will use a stacked area charts of keys used in a given years, faceting multiple charts at 5 year intervals to display the change over time. The question of Keys used is made a bit more interesting when one considers that certain songs will use multiple Keys, differentiated in the dataset as true "Multiple Keys" or if a change is just an "energy key change". My initial plan is when a song has multiple keys, the first key listed will be chosen, assuming that it is the primary key of the song. I will also use songs that are listed as having "Multiple Keys" as an auxiliary chart to enhance the main one by the plotting number of songs that use multiple keys over time.
 
@@ -94,7 +94,7 @@ I will produce two charts to answer this question. Both charts will be a proport
 ## Weekly Time Table
 
 | Task Name | Status | Due | Priority | Summary |
-|---------------|---------------|---------------|---------------|---------------|
+|----|----|----|----|----|
 | Determine Dataset for Project | **Complete in Week 1** | Week 1 | Low | Just getting familiar with the class and course materials here, found a dataset that I found intriuging. |
 | Establish Project Repo + Start Proposal | **Complete Week 2** | Week 2 | High | Project repo cloned and cleaned up. Majority of proposal complete. |
 | Finish Proposal + Peer Review | **In Progress -\> Will Need to Finish in Week 4** | Week 3 | Medium | Homework 1 took up more time than I anticipated. Will need a better plan going forward how to manage the Project and homework at the same time. |

@@ -6,7 +6,7 @@ website:
   navbar:
     right:
       - icon: github
-        href: https://github.com/INFO-526-SU26/final-project-gmcal213 # Project Repo
+        href: https://github.com/INFO-526-SU26/final-site-gmcal213 # Project Repo
     left:
       - text: Project
         href: index.qmd
