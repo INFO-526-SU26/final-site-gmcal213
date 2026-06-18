@@ -41,7 +41,7 @@ His website, *Can't Get Much Higher*, where you can buy the data-science book he
 
 This dataset interested me because I absolutely love music and am often fascinated by the developments of genres and music trends over time. Back in my undergraduate degree I took a gen-ed course entitled [*MUS109 - American Popular Music and Society*](https://catalog.arizona.edu/courses/0230671/general-aoYks), which dove into the most popular genre in American music of each decade starting in the early 1900's to today, and this dataset sparked a similar curiosity as that class did.
 
-Here is a look at the first few rows of the data. A more detailed description can be found in the [data folder](https://github.com/INFO-526-SU26/final-project-gmcal213/blob/main/data/README.md) of this project's repository. There are are lot of different rows of individual songs of course, but there is also a substantial amount of columns representing all kinds of different information about each song.
+Here is a look at the first few rows of the data. A more detailed description can be found in the [data folder](https://github.com/INFO-526-SU26/final-site-gmcal213/tree/main/data) of this project's repository. There are are lot of different rows of individual songs of course, but there is also a substantial amount of columns representing all kinds of different information about each song.
 
 ```{r}
 #| label: load-dataset
