@@ -37,9 +37,7 @@ The origins of this dataset are by and large the work of one person: Chris Dalla
 
 > 7 years ago, I decided that I was going to listen to every number one hit. Along the way, I tracked an absurd amount of information about each song. Using that information, I wrote a data-driven history of popular music covering 1958 through today.
 
-His website, *Can't Get Much Higher*, where you can buy the data-science book he wrote based off his endeavor, and check out his other work, is linked [here](https://www.cantgetmuchhigher.com).
-
-Make sure to load the data and use inline code for some of this information.
+His website, *Can't Get Much Higher*, where you can buy the data-science book he wrote based off his endeavor, and check out his other work, is linked [here](https://www.cantgetmuchhigher.com). The dataset was then uploaded to the TidyTuesday 2025 dataset by [Jen Richmond](https://github.com/jenrichmond).
 
 This dataset interested me because I absolutely love music and am often fascinated by the developments of genres and music trends over time. Back in my undergraduate degree I took a gen-ed course entitled [*MUS109 - American Popular Music and Society*](https://catalog.arizona.edu/courses/0230671/general-aoYks), which dove into the most popular genre in American music of each decade starting in the early 1900's to today, and this dataset sparked a similar curiosity as that class did.
 
@@ -63,38 +61,35 @@ With this dataset I aim to answer the following two questions about the American
 
 ## Analysis plan
 
-The analysis for both of these questions will involve time along the x-axis. Drawing back on my previous experiences when studying this topic, I find it most interesting to observe trends as they occur at different points in history. This is the only variable that these two questions will share. There is a variable named "date" that informs when the song first hit #1 on the charts, and is captured in a standard "date" format as day-month-year (i.e. 03-Sep-76).
+The analysis for both of these questions will involve time along the x-axis, grouped by year. Drawing back on my previous experiences when studying this topic, I find it most interesting to observe trends as they occur at different points in history. This is the only variable that these two questions will share. There is a variable named "date" that informs when a song first hit #1 on the charts, and is captured in a standard "date" format as day-month-year (i.e. 03-Sep-76).
 
 ### Homogeneity in Popular Music
 
-How do you measure how "similar" two songs are to each other? To do this, I will employ 3-4 variables that are labeled as "Musical Info" by the dataset and produce 3-4 charts. These variables are:
+How do you measure how "similar" two songs are to each other? To do this, I will employ 3 variables that are labeled as "Musical Info" by the dataset and produce 2-3 charts. These variables are:
 
 - Keys
 - Simplified Key
 - BPM
-- Possibly Time Signature
 
 I considered using the "Lyrical Topic" variable as well, but it seems too subjective and not concrete, while the Musical Info variables are objective and lend itself much better to quantitative analysis.
 
-The first chart will be taking a look at the BPM (beats per minute) of #1 songs over time. BPM is a measure of how fast or slow a song is. To measure how similar or dissimilar songs are growing over time with this metric I will employ either one of two approaches: box plots of BPMs used over time (split up by decade or every 5 years), or a plot of the standard deviation of BPMs used over time (years).
+The first chart will be taking a look at the BPM (beats per minute) of #1 songs over time. BPM is a measure of how fast or slow a song is. To measure how similar or dissimilar songs are growing over time with this metric I will plot the standard deviation of BPMs used over time.
 
-Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed. A music key, is, very simply, a letter corresponding to one of the twelve notes of Western Music that determines set of a chords and sounds a song should use to give the song a sense of musical cohesion. To do this, I will use either a stacked area chart over time, or a heat map over time. The question of Keys used is made a bit more interesting when one considers that certain songs will use multiple Keys, differentiated in the dataset as true "Multiple Keys" or if a change is just an "energy key change". My intial plan is when a song has multiple keys, the first key listed will be chosen, assuming that it is the primary key of the song. I will also use songs that are listed as having "Multiple Keys" as an auxiliary chart to enhance the main one by the plotting number of songs that use multiple keys over time (years).
-
-I am skeptical of the use of the Time Signature variable. I will potentially use a proportion bar chart to see what keys are used in #1 songs over time (years). My prediction is that 99% of songs will be in 4/4 time, and this metric will not reveal any valuable data, but there is potential for the chart to show interesting trends.\
+Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, a letter A-G (with sharp's and flat's) corresponding to one of the twelve notes of Western Music that determines a set of a chords and sounds a song should use to give the song a sense of musical cohesion. \
 \
-The deciding factor in all of these scenarios of whether to use one chart or another will be determined by how the chart ends up looking visually, if it paints a clear picture of trends and is easy to interpret.
+To do this, I will use a stacked area charts of keys used in a given years, faceting multiple charts at 5 year intervals to display the change over time. The question of Keys used is made a bit more interesting when one considers that certain songs will use multiple Keys, differentiated in the dataset as true "Multiple Keys" or if a change is just an "energy key change". My initial plan is when a song has multiple keys, the first key listed will be chosen, assuming that it is the primary key of the song. I will also use songs that are listed as having "Multiple Keys" as an auxiliary chart to enhance the main one by the plotting number of songs that use multiple keys over time.
 
 ### Diversity in Producing Popular Music
 
-To measure the diversity in who is producing popular music in America, the following three variables will be used:
+To measure the diversity of who is producing popular music in America, the following three variables will be used:
 
 - Weeks at Number One
 - Label
 - Parent Label
 
-Rather than simply counting how many times a Record Label company shows up when a new song hits #1, I want to use the "Weeks at Number One" variable to get a true sense of how much "market share" companies have over the time they have spent with one of their artists having the #1 song.
+Rather than simply counting how many times a Record Label company shows up when a new song hits #1, I want to use the "Weeks at Number One" variable to get a true sense of how much "market share" companies have over the time they have spent with one of their artists having the #1 song. The "Label" variable represents the primary record label that released the song, while "Parent Label" is a larger parent company that owns the record label, if any.
 
-I will produce two charts to answer this question. Both charts will be a proportion bar chart chart of the weeks at number one held by either a record label or parent label over time (years). To avoid the chart being unnecessarily busy, I will likely need to filter out the one-off record labels, or create a new variable called "One-Time Labels" which would encompass all of the labels that made a one-time appearance at the #1 spot that year, and did not show up again.
+I will produce two charts to answer this question. Both charts will be a proportion bar chart chart of the weeks at number one held by either a record label or parent label over time. To avoid the chart being unnecessarily busy, I will likely need to filter out the one-off record labels, or create a new variable called "One-Time Labels" which would encompass all of the labels that made a one-time appearance at the #1 spot that year, and did not show up again. These labels would be filtered out in the final chart.
 
 ## Weekly Time Table
 
