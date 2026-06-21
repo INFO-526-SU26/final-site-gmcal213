@@ -32,7 +32,8 @@ pacman::p_load(tidyverse,
                dsbox,
                here,
                lubridate,
-               stringr)
+               stringr,
+               patchwork)
 
 # set wieght of code output
 options(width = 65)
@@ -74,29 +75,22 @@ The dataset used for this project is by and large the work of one person: Chris 
 ```{r}
 #| label: bpm-viz
 #| warning: FALSE
+#| echo: TRUE
 
 # read in data
 bpm_length = billboard |> # data wrangling
   select("song", "date", "bpm", "length_sec") |> # isolating variables
   mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025)
-  
-bpm_sd <- bpm_length |> # calculate the bpm standard deviation
-  group_by(year) |>
-  summarize(sd = sd(bpm, na.rm = TRUE)) |>
-  mutate(category = "bpm")
-  
+  filter(year != 2025) |>
+  pivot_longer( # pivoting longer for bpm and song length
+    cols = c(bpm, length_sec),
+    names_to = "category",
+    values_to = "value"
+  ) |>
+  group_by(year, category) |> # grouping by year and category for Standard Deviation category
+  summarise(sd = sd(value, na.rm = TRUE))
 
-length_sd <- bpm_length |> # calculate song length standard deviation
-  group_by(year) |>
-  summarise(sd = sd(length_sec, na.rm = TRUE)) |>
-  mutate(category = "length")
-
-bpm_length_sd = bind_rows(bpm_data, length_data)
-
-bpm_length_sd
-
-ggplot(bpm_length_sd, aes(x = year, y = sd)) +
+ggplot(bpm_length, aes(x = year, y = sd)) +
   geom_line() +
   geom_point() +
   facet_wrap(~ category, ncol = 1) +
@@ -107,19 +101,39 @@ ggplot(bpm_length_sd, aes(x = year, y = sd)) +
 ```{r}
 #| label: keys-viz
 #| warning: FALSE
+#| echo: TRUE
 
-keys_data = billboard |> # data wrangling
+keys_data <- billboard |> # data wrangling
   select("song", "date", "keys", "simplified_key") |> # isolating variables
   mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025) |> 
+  filter(year != 2025) 
+
+# count the use of keys
+keys_count <- keys_data |>
   mutate(keys = sub(";.*", "", keys)) |> # cleaning up keys variable
-  count(keys, name = "count")
-  
-  
-keys_data
+  add_count(keys, name = "count") |> # getting count of variables
+  mutate(keys = ifelse(count < 40, "Other", keys)) |> # filtering lesser used keys
+  select(-count) |> # removing total count variable
+  count(year, keys) |> # count the times a key was used in a given year
+  complete(year, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
+
+# count the use of multiple keys
+multiple_keys_count <- keys_data |>
+  group_by(year) |>
+  summarize(multiple_keys = sum(
+    simplified_key == "Multiple Keys", 
+    na.rm = TRUE)
+  )
+
+ggplot(keys_count, aes(x = year, y = keys, fill = n)) +
+  geom_tile() +
+  theme_minimal()
 
 
-
+ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
 ```
 
 ### Discussion
