@@ -17,6 +17,121 @@ execute:
   echo: false
 ---
 
+```{r}
+#| label: package-setup
+#| warning: FALSE
+#| message: FALSE
+#| echo: FALSE
+
+# Set up packages and such
+if (!require("pacman")) 
+  install.packages("pacman")
+
+# Install packages
+pacman::p_load(tidyverse,
+               dsbox,
+               here,
+               lubridate,
+               stringr)
+
+# set wieght of code output
+options(width = 65)
+
+# set figure parameters
+knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.asp = 0.618,
+  fig.retina = 3,
+  fig.align = "center",
+  dpi = 300
+)
+
+# read in csv for each question
+billboard <- read.csv(here("data", "billboard.csv"))
+
+```
+
 ## Abstract
 
-Add project abstract here.
+This project aims to answer two questions regarding how the nature of American Popular music has changed over time. It does this via a data scientific approach, examining data on each #1 song as defined by the Billboard Hot 100 list from 1958 to 2024. The two questions answered by this project are "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".\
+\
+To answer question one, a chart showing the standard deviation of BPMs of #1 song over time, and a stacked area chart of Musical Keys of #1 songs were shown. To answer question 2,
+
+## Introduction
+
+The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each #1 song on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".
+
+The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced it. The inspiration for these two questions come from the idea that if the number of distinct corporations that are actually producing popular music in America have decreased, it would lead to ultimately the most popular songs in America sounding the "same", and discouraging creativity and experimentation. The data presented here will aim to provide insight to this idea and whether it holds merit.
+
+## Has American popular music grown more homogeneous over time?
+
+### Introduction
+
+### Approach
+
+### Analysis
+
+```{r}
+#| label: bpm-viz
+#| warning: FALSE
+
+# read in data
+bpm_length = billboard |> # data wrangling
+  select("song", "date", "bpm", "length_sec") |> # isolating variables
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year != 2025)
+  
+bpm_sd <- bpm_length |> # calculate the bpm standard deviation
+  group_by(year) |>
+  summarize(sd = sd(bpm, na.rm = TRUE)) |>
+  mutate(category = "bpm")
+  
+
+length_sd <- bpm_length |> # calculate song length standard deviation
+  group_by(year) |>
+  summarise(sd = sd(length_sec, na.rm = TRUE)) |>
+  mutate(category = "length")
+
+bpm_length_sd = bind_rows(bpm_data, length_data)
+
+bpm_length_sd
+
+ggplot(bpm_length_sd, aes(x = year, y = sd)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ category, ncol = 1) +
+  theme_minimal()
+
+```
+
+```{r}
+#| label: keys-viz
+#| warning: FALSE
+
+keys_data = billboard |> # data wrangling
+  select("song", "date", "keys", "simplified_key") |> # isolating variables
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year != 2025) |> 
+  mutate(keys = sub(";.*", "", keys)) |> # cleaning up keys variable
+  count(keys, name = "count")
+  
+  
+keys_data
+
+
+
+```
+
+### Discussion
+
+## Has the diversity of record labels that produce American popular music decreased over time?
+
+### Introduction
+
+### Approach
+
+### Analysis
+
+### Discussion
+
+## Conclusion
