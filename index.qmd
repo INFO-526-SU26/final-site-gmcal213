@@ -90,10 +90,11 @@ bpm_length = billboard |> # data wrangling
   group_by(year, category) |> # grouping by year and category for Standard Deviation category
   summarise(sd = sd(value, na.rm = TRUE))
 
-ggplot(bpm_length, aes(x = year, y = sd)) +
+ggplot(bpm_length, aes(x = year, y = sd, color = category)) +
   geom_line() +
   geom_point() +
-  facet_wrap(~ category, ncol = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ category, ncol = 1) + 
   theme_minimal()
 
 ```
@@ -106,16 +107,17 @@ ggplot(bpm_length, aes(x = year, y = sd)) +
 keys_data <- billboard |> # data wrangling
   select("song", "date", "keys", "simplified_key") |> # isolating variables
   mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025) 
+  filter(year != 2025)
 
 # count the use of keys
 keys_count <- keys_data |>
-  mutate(keys = sub(";.*", "", keys)) |> # cleaning up keys variable
-  add_count(keys, name = "count") |> # getting count of variables
-  mutate(keys = ifelse(count < 40, "Other", keys)) |> # filtering lesser used keys
-  select(-count) |> # removing total count variable
-  count(year, keys) |> # count the times a key was used in a given year
-  complete(year, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(
+    keys = str_remove_all(keys, "&"),
+    keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
+  separate_rows(keys, sep = ";") |> # enumerate all keys used in song
+  count(year_group, keys) |> # count the times a key was used in a given year
+  complete(year_group, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
 
 # count the use of multiple keys
 multiple_keys_count <- keys_data |>
@@ -125,14 +127,42 @@ multiple_keys_count <- keys_data |>
     na.rm = TRUE)
   )
 
-ggplot(keys_count, aes(x = year, y = keys, fill = n)) +
+ggplot(keys_count, aes(x = year_group, y = keys, fill = n)) +
   geom_tile() +
+  scale_fill_viridis_c(option = "cividis") +
   theme_minimal()
 
 
 ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
   geom_line() +
   geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal()
+```
+
+```{r}
+#| label: keys-viz-part2
+#| warning: FALSE
+#| echo: TRUE
+
+modern_keys_data <- billboard |> # data wrangling
+  select("song", "date", "keys", "simplified_key") |> # isolating variables
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year > 1990) |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(
+    keys = str_remove_all(keys, "&"),
+    keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
+  separate_rows(keys, sep = ";") |> # enumerate all keys used in song
+  add_count(keys, name = "count") |> # getting count of keys
+  select(-count) |> # removing total count variable
+  count(year_group, keys) |> # count the times a key was used in a given year
+  complete(year_group, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
+  
+
+ggplot(modern_keys_data, aes(x = year_group, y = keys, fill = n)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "cividis") +
   theme_minimal()
 ```
 
@@ -145,6 +175,45 @@ ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
 ### Approach
 
 ### Analysis
+
+```{r}
+#| warning: FALSE
+#| echo: TRUE
+
+label_data <- billboard |> # data wrangling
+  select("weeks_at_number_one", "date", "label", "parent_label") |> # isolating variables
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year != 2025) |>
+  separate_rows(label, sep = ";") 
+
+
+# Find labels with fewer than 25 total weeks across all years
+small_labels <- label_data |>
+  group_by(label) |>
+  summarise(
+    total_weeks = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) |>
+  filter(total_weeks < 50) |>
+  pull(label)
+
+# filter out small labels and then proportions plot across all years
+record_label <- label_data |>
+  mutate(label = ifelse(label %in% small_labels, "Other", label)) |>
+  group_by(year, label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(record_label, aes(x = year, y = weeks_at_number_one, fill = label)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d(option = "A") +
+  theme_minimal()
+  
+
+
+```
 
 ### Discussion
 
