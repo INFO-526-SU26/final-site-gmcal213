@@ -33,6 +33,7 @@ pacman::p_load(tidyverse,
                here,
                lubridate,
                stringr,
+               scales,
                patchwork)
 
 # set wieght of code output
@@ -119,6 +120,11 @@ keys_count <- keys_data |>
   count(year_group, keys) |> # count the times a key was used in a given year
   complete(year_group, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
 
+ggplot(keys_count, aes(x = year_group, y = keys, fill = n)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "cividis") +
+  theme_minimal()
+
 # count the use of multiple keys
 multiple_keys_count <- keys_data |>
   group_by(year) |>
@@ -127,42 +133,10 @@ multiple_keys_count <- keys_data |>
     na.rm = TRUE)
   )
 
-ggplot(keys_count, aes(x = year_group, y = keys, fill = n)) +
-  geom_tile() +
-  scale_fill_viridis_c(option = "cividis") +
-  theme_minimal()
-
-
 ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
   geom_line() +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  theme_minimal()
-```
-
-```{r}
-#| label: keys-viz-part2
-#| warning: FALSE
-#| echo: TRUE
-
-modern_keys_data <- billboard |> # data wrangling
-  select("song", "date", "keys", "simplified_key") |> # isolating variables
-  mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year > 1990) |>
-  mutate(year_group = (year %/% 5) * 5) |>
-  mutate(
-    keys = str_remove_all(keys, "&"),
-    keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
-  separate_rows(keys, sep = ";") |> # enumerate all keys used in song
-  add_count(keys, name = "count") |> # getting count of keys
-  select(-count) |> # removing total count variable
-  count(year_group, keys) |> # count the times a key was used in a given year
-  complete(year_group, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
-  
-
-ggplot(modern_keys_data, aes(x = year_group, y = keys, fill = n)) +
-  geom_tile() +
-  scale_fill_viridis_c(option = "cividis") +
   theme_minimal()
 ```
 
@@ -194,25 +168,88 @@ small_labels <- label_data |>
     total_weeks = sum(weeks_at_number_one),
     .groups = "drop"
   ) |>
-  filter(total_weeks < 50) |>
+  filter(total_weeks < 52) |>
   pull(label)
 
 # filter out small labels and then proportions plot across all years
 record_label <- label_data |>
-  mutate(label = ifelse(label %in% small_labels, "Other", label)) |>
-  group_by(year, label) |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(label = ifelse(label %in% small_labels, "Other", "Top 15")) |>
+  mutate(label = fct_relevel(label, "Other", after = Inf)) |>
+  group_by(year_group, label) |>
   summarise(
     weeks_at_number_one = sum(weeks_at_number_one),
     .groups = "drop"
   ) 
 
-ggplot(record_label, aes(x = year, y = weeks_at_number_one, fill = label)) +
+ggplot(record_label, aes(x = year_group, y = weeks_at_number_one, fill = label)) +
   geom_col(position = "fill") +
-  scale_fill_viridis_d(option = "A") +
+  geom_hline(
+    yintercept = 0.5,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.5,
+    label = "50% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Weeks at Number One"
+  ) +
+  scale_fill_viridis_d() +
   theme_minimal()
   
 
 
+parent_label_data <- label_data |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  add_count(parent_label, name = "count") |> # getting count of variables
+  mutate(parent_label = ifelse(
+    year_group == max(year_group), # if last group
+    case_when( # special labeling for last group year
+      parent_label == "Sony" ~ parent_label,
+      parent_label == "Vivendi" ~ parent_label,
+      parent_label == "Warner Bros." ~ parent_label,
+      parent_label == "Universal" ~ parent_label,
+      TRUE ~ "Other"
+    ),
+    ifelse(count < 100, "Other", parent_label) # normal rule
+  )) |>
+  mutate(parent_label = fct_relevel(parent_label, "Other", after = Inf)) |>
+  group_by(year_group, parent_label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(parent_label_data, aes(x = year_group, y = weeks_at_number_one, fill = parent_label)) +
+  geom_col(position = "fill") +
+    geom_hline(
+    yintercept = 0.25,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.25,
+    label = "25% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Weeks at Number One"
+  ) +
+  scale_fill_viridis_d() +
+  theme_minimal()
 ```
 
 ### Discussion
