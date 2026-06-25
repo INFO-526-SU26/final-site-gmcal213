@@ -140,7 +140,7 @@ songs_per_year <- billboard |>
 
 # count the use of keys
 keys_count <- billboard |>
-  select("song", "year", "keys", "simplified_key") |> # isolating variables
+  select("song", "year", "keys") |> # isolating variables
   mutate(year_group = (year %/% 5) * 5) |> # Group every 5 years
   mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
   mutate(keys = str_remove_all(keys, "&")) |>
@@ -193,7 +193,8 @@ ggplot(keys_count_norm, aes(x = year_label, y = keys, fill = prop)) +
   )
 
 # count the use of multiple keys
-multiple_keys_count <- keys_data |>
+multiple_keys_count <- billboard |>
+  select("song", "year", "simplified_key") |> # isolating variables
   group_by(year) |>
   summarize(multiple_keys = sum(
     simplified_key == "Multiple Keys", 
