@@ -49,7 +49,9 @@ knitr::opts_chunk$set(
 )
 
 # read in csv for each question
-billboard <- read.csv(here("data", "billboard.csv"))
+billboard <- read.csv(here("data", "billboard.csv")) |>
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year != 2025) # filter out 2025 (only one song)
 
 ```
 
@@ -61,15 +63,21 @@ To answer question one, a chart showing the standard deviation of BPMs of #1 son
 
 ## Introduction
 
-The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each #1 song on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".
+The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each song that ever went #1 on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".
 
-The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced it. The inspiration for these two questions come from the idea that if the number of distinct corporations that are actually producing popular music in America have decreased, it would lead to ultimately the most popular songs in America sounding the "same", and discouraging creativity and experimentation. The data presented here will aim to provide insight to this idea and whether it holds merit.
+The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced it. The inspiration for these two questions come from the idea that if the number of distinct corporations that are actually producing popular music in America have decreased, it would lead to the most popular songs in America eventually sounding the "same", and discouraging creativity and experimentation. The data presented here will aim to provide insight to this idea and whether it holds merit.
 
 ## Has American popular music grown more homogeneous over time?
 
 ### Introduction
 
+This question will look into information about each songs' musical structure to attempt to provide a concrete visualization of whether #1 songs have grown to sound the "same" over time. Musical similarity can be subjective, so to make the topic quantifiably approachable, these visualizations focus on each song's beats per minute (BPM), song length, musical key, and musical key changes. BPM is a measure how fast or slow a song is, while song length is a measure of how short or long a song is. A musical key is sonic information contained in one of the 24 possible choices for a key (in Western Music) about a song's pitch and what chords and notes are used, while a musical key change is going from one key to another in the same song. Importantly, multiple keys is not considering "energy key changes" as defined by the dataset as "a key change that takes the song either up one or two half steps". The goal of these visualizations is to try and reveal whether creativity in songwriting has decreased over time due to less variety in these musical categories.
+
 ### Approach
+
+In the analysis, it first visualizes the standard deviation of each #1 song's BPM and length in seconds for a given year, from 1958 to 2024. Standard deviation yields a reliable measure of variability; a high standard deviation indicates that songs varied in speed and length that year, while a lower standard deviation indicates songs tended to be the same that year. The visualization displays the the result of this calculation on a faceted line plot, with BPM in the top row and song length in the bottom row, with a single point for each year. A trend line has been added to better visualize the changes over time.
+
+The second visualization uses two key variables and each receives their own visualization: the keys used in #1 songs and the indication of songs using multiple keys. Over 5 year periods, to improve readability, each time a key is recorded to have been used in a song, that counts as a "hit" for that key and will go into a cell of the 1st plot which is a heat map. This heat map is set up to display every possible key as a row, 5 year periods in the columns, and each cell representing the proportion of how many times that key was used in a song to how many songs hit #1 during that time frame. If over time, certain keys are selected more often than others and experimentation in songwriting wanes, that row will start to "heat up" and become distinctly yellow, as compared to blue indicating an even spread of keys utilized. Accompanying the heat map is also a line plot indicating how many #1 songs each year elected to utilize multiple keys within them, where less songs opting to change keys is an indication of less creative songwriting.
 
 ### Analysis
 
@@ -79,24 +87,42 @@ The dataset used for this project is by and large the work of one person: Chris 
 #| echo: TRUE
 
 # read in data
-bpm_length = billboard |> # data wrangling
-  select("song", "date", "bpm", "length_sec") |> # isolating variables
-  mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025) |>
+bpm_length <- billboard |> # data wrangling
+  select("song", "year", "bpm", "length_sec") |> # isolating variables
   pivot_longer( # pivoting longer for bpm and song length
     cols = c(bpm, length_sec),
     names_to = "category",
     values_to = "value"
   ) |>
   group_by(year, category) |> # grouping by year and category for Standard Deviation category
-  summarise(sd = sd(value, na.rm = TRUE))
+  summarise(sd = sd(value, na.rm = TRUE)) # calculating standard deviation
 
 ggplot(bpm_length, aes(x = year, y = sd, color = category)) +
   geom_line() +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~ category, ncol = 1) + 
-  theme_minimal()
+  facet_wrap(
+    ~ category, 
+    ncol = 1,
+    labeller = as_labeller(c(
+      bpm = "Beats Per Minute",
+      length_sec = "Song Length"
+    ))) + 
+  theme_minimal() +
+  labs(
+    title = "Standard Deviation of Each #1 Song's BPM and Length",
+    subtitle = "Standard Deviations Calculated per Year",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Standard Deviation"
+  ) +
+  scale_color_viridis_d() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "none"
+  )
 
 ```
 
@@ -105,25 +131,66 @@ ggplot(bpm_length, aes(x = year, y = sd, color = category)) +
 #| warning: FALSE
 #| echo: TRUE
 
-keys_data <- billboard |> # data wrangling
-  select("song", "date", "keys", "simplified_key") |> # isolating variables
-  mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025)
+# count number of songs per year
+songs_per_year <- billboard |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  distinct(song, year_label) |>
+  count(year_label, name = "n_songs")
 
 # count the use of keys
-keys_count <- keys_data |>
-  mutate(year_group = (year %/% 5) * 5) |>
-  mutate(
-    keys = str_remove_all(keys, "&"),
-    keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
+keys_count <- billboard |>
+  select("song", "year", "keys", "simplified_key") |> # isolating variables
+  mutate(year_group = (year %/% 5) * 5) |> # Group every 5 years
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  mutate(keys = str_remove_all(keys, "&")) |>
+  mutate(keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
   separate_rows(keys, sep = ";") |> # enumerate all keys used in song
-  count(year_group, keys) |> # count the times a key was used in a given year
-  complete(year_group, keys, fill = list(n = 0)) # fill in missing keys with 0 for plotting purposes
+  count(year_label, keys, name = "n_keys") |> # count the times a key was used in a given year 
+  complete(year_label, keys, fill = list(n_keys = 0)) |> # fill in missing keys with 0 for plotting purposes
+  mutate(
+    keys = factor(
+      keys,
+      levels = c(
+        "Abm", "Ab", "Am", "A",
+        "Bbm", "Bb", "Bm", "B",
+        "Cm", "C", 
+        "Dbm", "Db", "Dm", "D",
+        "Ebm", "Eb", "Em", "E",
+        "Fm", "F",
+        "Gbm", "Gb", "Gm", "G")
+    )
+  )
 
-ggplot(keys_count, aes(x = year_group, y = keys, fill = n)) +
+# normalize key count per year
+keys_count_norm <- keys_count |>
+  left_join(songs_per_year, by = "year_label") |>
+  mutate(prop = n_keys / n_songs)
+  
+ggplot(keys_count_norm, aes(x = year_label, y = keys, fill = prop)) +
   geom_tile() +
-  scale_fill_viridis_c(option = "cividis") +
-  theme_minimal()
+  scale_fill_viridis_c(option = "cividis", labels = label_percent()) +
+  geom_vline(
+    xintercept = 8.5,
+    color = "red",
+    linewidth = 1
+  ) +
+  labs(
+    fill = "Proportion of Songs\nin that Key",
+    title = "Frequency of Music Key in #1 Songs",
+    subtitle = "Grouped Every 5 Years, Normalized to the Amount of #1 Songs in that Group",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Musical Key\n(Descending Order)"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+  )
 
 # count the use of multiple keys
 multiple_keys_count <- keys_data |>
@@ -137,10 +204,27 @@ ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
   geom_line() +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  theme_minimal()
+  labs(
+    title = "Number of Times Multiple Keys are Used in #1 Songs",
+    subtitle = "Counted per Year",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Number of Times Multiple Keys are Used"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
 ```
 
 ### Discussion
+
+The results of these visualizations are very interesting. In the BPM and song length category, when looking at the progression of standard deviation over time, there is a clear overall trend but it is neither positive nor negative. There's clear fluctuations from year to year, but the most apparent observation is that the trend line for both categories is totally flat! This indicates that there has been no meaningful localization of song speed and length over the last 60 years, and it appears that #1 songs continue to have the same diversity of BPM and song length today as it did in 1958.
+
+On the keys heat map, it appears that there is a clear distinction of 2 periods, one before 1995 and one after, marked on the plot with a red line for visual clarity. Before 1995, there are clear "hot spots" of popular keys during this era, indicated by the yellow rows, such as the key of C for example. But suddenly, after 1995, all of the hot spots seem to disappear. Across the entire keys spectrum the heat map has turned mostly blue, indicating a wide spread of differnet keys used in #1 songs, and that songwriting has become more diverse and varied in modern times.
+
+The only indication that songwriting has become less creative over time is in the multiple keys visualization. This plot clearly shows via a trend line that over time, the number of #1 songs willing to incorporate multiple keys has decreased. There was even a stretch in the 2000's to 2010's era that no #1 songs changed keys at all. This so far has been the only indication that over time, American Popular music has begun to sound homogeneous, while the other visualizations seemed to indicate no change, or even an increase in musical diversity.
 
 ## Has the diversity of record labels that produce American popular music decreased over time?
 
@@ -230,7 +314,7 @@ parent_label_data <- label_data |>
 
 ggplot(parent_label_data, aes(x = year_group, y = weeks_at_number_one, fill = parent_label)) +
   geom_col(position = "fill") +
-    geom_hline(
+  geom_hline(
     yintercept = 0.25,
     color = "red",
     linewidth = 1

@@ -57,7 +57,7 @@ glimpse(hot_100)
 With this dataset I aim to answer the following two questions about the American music industry:
 
 1.  Has American popular music grown more homogeneous over time?
-2.  Has the diversity of record labels that produce American popular music decreased overtime?
+2.  Has the diversity of record labels that produce American popular music decreased over time?
 
 ## Analysis plan
 
@@ -73,7 +73,7 @@ How do you measure how "similar" two songs are to each other? To do this, I will
 
 The first chart will be taking a look at the BPM (beats per minute) of #1 songs over time. BPM is a measure of how fast or slow a song is. To measure how similar or dissimilar songs are growing over time with this metric I will plot the standard deviation of BPMs used over time.
 
-Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, a letter A-G (with sharp's and flat's) corresponding to one of the twelve notes of Western Music that determines a set of a chords and sounds a song should use to give the song a sense of musical cohesion.\
+Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, one of 24 possible symbols corresponding to one of the twelve notes of Western Music that determines a set of a chords and sounds a song should use to give the song a sense of musical cohesion.\
 \
 To do this, I will use stacked area charts of keys used in a given year, faceting multiple charts at 5 year intervals to display the change over time. The question of Keys used is made a bit more interesting when one considers that certain songs will use multiple Keys, differentiated in the dataset as "Multiple Keys" or if a change is just an "energy key change". My initial plan is when a song has multiple keys, the first key listed will be chosen, assuming that it is the primary key of the song. I will also use songs that are listed as having "Multiple Keys" on an auxiliary chart to enhance the main one by the plotting number of songs that use multiple keys over time.
 
@@ -98,5 +98,5 @@ I will produce two charts to answer this question. Both charts will be a proport
 | Finish Proposal + Peer Review | **In Progress -\> Will Need to Finish in Week 4** | Week 3 | Medium | Homework 1 took up more time than I anticipated. Will need a better plan going forward how to manage the Project and homework at the same time. |
 | Address Peer Review + Start Question 1 | **Not Started** | Week 4 | Low |  |
 | Finish Question 1 + Start Question 2 | **Not Started** | Week 5 | Medium |  |
-| Finish Question 2 + Begin Write Up | **Not Started** | Week 6 | High |  |
+| Finish Question 2 + Begin Presentation | **Not Started** | Week 6 | High |  |
 | Finish Proposal/Peer Review | **Not Started** | Week 7 | High |  |
