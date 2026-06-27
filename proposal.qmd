@@ -96,10 +96,10 @@ To do this, I will use a heat map of the number of times each musical key was us
 
 | Task Name | Status | Due | Priority | Summary |
 |---------------|---------------|---------------|---------------|---------------|
-| Determine Dataset for Project | **Complete in Week 1** | Week 1 | Low | Just getting familiar with the class and course materials here, found a dataset that I found intriuging. |
-| Establish Project Repo + Start Proposal | **Complete Week 2** | Week 2 | High | Project repo cloned and cleaned up. Majority of proposal complete. |
-| Finish Proposal + Peer Review | **In Progress -\> Will Need to Finish in Week 4** | Week 3 | Medium | Homework 1 took up more time than I anticipated. Will need a better plan going forward how to manage the Project and homework at the same time. |
-| Address Peer Review + Start Question 1 | **Not Started** | Week 4 | Low |  |
-| Finish Question 1 + Start Question 2 | **Not Started** | Week 5 | Medium |  |
-| Finish Question 2 + Begin Presentation | **Not Started** | Week 6 | High |  |
+| Determine Dataset for Project | **Completed** | Week 1 | Low | Just getting familiar with the class and course materials here, found a dataset that I found intriuging. |
+| Establish Project Repo + Start Proposal | **Completed** | Week 2 | High | Project repo cloned and cleaned up. Majority of proposal complete. |
+| Finish Proposal + Peer Review | **Completed** | Week 3 | Medium | Homework 1 took up more time than I anticipated. Will need a better plan going forward how to manage the Project and homework at the same time. |
+| Address Peer Review + Start Question 1 | **Peer review Completed, Write Up delayed** | Week 4 | Low | Addressed peer review comments, issues closed. |
+| Finish Question 1 + Start Question 2 | **Proposal Completed, Question 1 Started** | Week 5 | Medium | Still struggling to keep up with homework, proposal is complete but will have to really focus on the write-up next week. |
+| Finish Question 2 + Begin Presentation | **Write Up Complete, Presentation Started** | Week 6 | High | Finally got ahead of the homework, finished up write up and began presentation |
 | Finish Proposal/Peer Review | **Not Started** | Week 7 | High |  |
