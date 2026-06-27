@@ -3,7 +3,7 @@ title: "Project title"
 subtitle: "INFO 526 - Summer 2024 - Final Project"
 author: "Author names"
 title-slide-attributes:
-  data-background-image: images/watercolour_sys02_img34_teacup-ocean.jpg
+  data-background-image: images/music_presentation_background.jpg
   data-background-size: stretch
   data-background-opacity: "0.7"
   data-slide-number: none

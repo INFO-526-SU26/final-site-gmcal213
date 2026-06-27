@@ -57,27 +57,177 @@ billboard <- read.csv(here("data", "billboard.csv")) |>
 
 ## Abstract
 
-This project aims to answer two questions regarding how the nature of American Popular music has changed over time. It does this via a data scientific approach, examining data on each #1 song as defined by the Billboard Hot 100 list from 1958 to 2024. The two questions answered by this project are "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".\
+This project aims to answer two questions regarding how the nature of American Popular music has changed over time. It does this via a data scientific approach, examining data on each #1 song as defined by the Billboard Hot 100 list from 1958 to 2024. The two questions answered by this project are "Has the diversity of record labels that produce American popular music decreased over time?" and "Has American popular music grown more homogeneous over time?".\
 \
-To answer question one, a chart showing the standard deviation of BPMs of #1 song over time, and a stacked area chart of Musical Keys of #1 songs were shown. To answer question 2,
+To answer question one, two 100% bar charts of the time spent at the #1 song spot by record labels and their parent copmanies are shown. To answer question two, a chart showing the standard deviation of #1 songs BPMs and song lengths are shown, as well as a heat map of musical keys used by #1 songs augmented by a line chart of how many #1 songs that utilize multiple keys are shown. The results of the data show that the diversity of labels producing American popular music have decreased, while American popular music song diversity has largely remained the same, and in some cases, even increased in variety.
 
 ## Introduction
 
-The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each song that ever went #1 on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has American popular music grown more homogeneous over time?" and "Has the diversity of record labels that produce American popular music decreased over time?".
+The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each song that ever went #1 on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has the diversity of record labels that produce American popular music decreased over time?" and "Has American popular music grown more homogeneous over time?"
 
-The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced it. The inspiration for these two questions come from the idea that if the number of distinct corporations that are actually producing popular music in America have decreased, it would lead to the most popular songs in America eventually sounding the "same", and discouraging creativity and experimentation. The data presented here will aim to provide insight to this idea and whether it holds merit.
+The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of diversity and homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced them. The inspiration for these two questions come from the idea that if the number of distinct corporations producing popular music in America have decreased, it could discourage creativity and experimentation in songwriting, and lead to the most popular songs eventually all sounding the "same." The data presented here will aim to provide insight to this idea and whether it holds merit.
+
+## Has the diversity of record labels that produce American popular music decreased over time?
+
+### Introduction
+
+This question looks to answer whether record label diversity of American popular music has decreased over time. It will do this by doing a straightforward analysis of the total time that different record labels and parent companies have spent holding the #1 spot each year. "Independent" and "Mainstream" labels will be categorized and grouped up to be compared against one another. The main goal of these visualizations is to determine whether the number of record labels and parent companies who are making the #1 songs in America have grown more centralized over time, leaving less room for independent labels and artists to break through to the top.
+
+### Approach
+
+Both the record label and parent company visualizations will be tackled in a similar way. Both visualizations will use a 100% bar chart to show the total amount of time a particular label or company spent at the #1 spot from 1958 to 2024, grouped by 5 year intervals to improve readability. Each song has a number of weeks metric that tracks how many weeks total a song spent at number one. Using the release date of each song to tie it to a specific year group, the cumulative number of weeks of each record label and parent company will become a percentage of the total number of weeks in 5 years. The main difference between the two visualizations is how the independent and mainstream categories are determined.
+
+For record labels, if over 66 years a particular record label spent 1 year or less at the #1 song spot, it is considered to be an independent label. This resulted in there being 15 mainstream labels, whose cumulative time spent at #1 was grouped together and compared to all of the other independent labels. For Parent Companies, if over 66 years a particular company spent 2 years or less at the #1 song spot, it is considered to be an independent company. This lead to there being only 3 mainstream companies. There was one exception to this in 2020-2024 with the Universal company, which will be explained in the discussion section. The result of these groupings is two distinct groups on each bar chart, a mainstream and an independent group, where less independent label/company presence indicates less diversity in American Popular music production.
+
+### Analysis
+
+```{r}
+#| warning: FALSE
+#| echo: TRUE
+
+label_data <- billboard |> # data wrangling
+  select("weeks_at_number_one", "year", "label", "parent_label") |> # isolating variables
+  separate_rows(label, sep = ";") 
+
+
+# Find labels with fewer than 25 total weeks across all years
+small_labels <- label_data |>
+  group_by(label) |>
+  summarise(
+    total_weeks = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) |>
+  filter(total_weeks < 52) |>
+  pull(label)
+
+# filter out small labels and then proportions plot across all years
+record_label <- label_data |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  mutate(label = ifelse(label %in% small_labels, "Independent", "Top 15")) |>
+  mutate(label = fct_relevel(label, "Independent", after = Inf)) |>
+  group_by(year_label, label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(record_label, aes(x = year_label, y = weeks_at_number_one, fill = label)) +
+  geom_col(position = "fill") +
+  geom_hline(
+    yintercept = 0.5,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.5,
+    label = "50% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Percent of Weeks at Number One"
+  ) +
+  scale_fill_viridis_d(
+    name = NULL
+  ) +
+  labs(
+    title = "Record Labels Time at #1 Song",
+    subtitle = "Meaured by weeks, grouped every 5 years",
+    caption = "From 1958 to 2024",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+parent_label_data <- label_data |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  add_count(parent_label, name = "count") |> # getting count of variables
+  mutate(parent_label = ifelse(
+    year_group == max(year_group), # if last group
+    case_when( # special labeling for last group year
+      parent_label == "Sony" ~ parent_label,
+      parent_label == "Vivendi" ~ parent_label,
+      parent_label == "Warner Bros." ~ parent_label,
+      parent_label == "Universal" ~ parent_label,
+      TRUE ~ "Independent"
+    ),
+    ifelse(count < 104, "Independent", parent_label) # normal rule
+  )) |>
+  mutate(parent_label = fct_relevel(parent_label, "Independent", after = Inf)) |>
+  group_by(year_label, parent_label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(parent_label_data, aes(x = year_label, y = weeks_at_number_one, fill = parent_label)) +
+  geom_col(position = "fill") +
+  geom_hline(
+    yintercept = 0.25,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.25,
+    label = "25% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Percent of Weeks at Number One"
+  ) +
+  scale_fill_viridis_d(
+    name = NULL
+  ) +
+  labs(
+    title = "Parent Companies Time at #1 Song",
+    subtitle = "Meaured by weeks, grouped every 5 years",
+    caption = "From 1958 to 2024",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)    
+  )
+```
+
+### Discussion
+
+The results of both visualizations represent similar trends in American Popular music production. For record labels, ever since 1960 the presence of independent labels have steadily decreased, hitting an all time low in 1985-1989. There was a movement upward from this through 1990 to 2010, but has since dropped back down. Today, less than half of the weeks taken up by #1 songs are made outside of the top 15 most influential record labels. For parent companies, it is even worse.
+
+At the turn of the century, independent parent companies share of #1 song time plummeted, overtaken by French superpower Vivendi. Since then, less than 25% percent of the share of #1 song time is taken up by a company other than Sony, Universal, Warner Bros, or Vivendi. Universal was not filtered with the same criteria as the other Independent companies, which used the less than 2 total years at the #1 song measure. The reason for this is for a long time Universal was a subsidiary of Vivendi. But, in 2021, as described in this [article](https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d), Vivendi allowed Universal to "spin off" and become its own entity, which immediately skyrocketed it as a dominant force in the Parent Company market share. These two visualizations show the decrease in diversity of companies producing American Popular music.
 
 ## Has American popular music grown more homogeneous over time?
 
 ### Introduction
 
-This question will look into information about each songs' musical structure to attempt to provide a concrete visualization of whether #1 songs have grown to sound the "same" over time. Musical similarity can be subjective, so to make the topic quantifiably approachable, these visualizations focus on each song's beats per minute (BPM), song length, musical key, and musical key changes. BPM is a measure how fast or slow a song is, while song length is a measure of how short or long a song is. A musical key is sonic information contained in one of the 24 possible choices for a key (in Western Music) about a song's pitch and what chords and notes are used, while a musical key change is going from one key to another in the same song. Importantly, multiple keys is not considering "energy key changes" as defined by the dataset as "a key change that takes the song either up one or two half steps". The goal of these visualizations is to try and reveal whether creativity in songwriting has decreased over time due to less variety in these musical categories.
+This question will look into information about each songs' musical structure to attempt to provide a concrete visualization of whether #1 songs have grown to sound the "same" over time. Musical similarity can be subjective, so to make the topic quantifiable and approachable, these visualizations focus on each song's beats per minute (BPM), song length, musical key, and musical key changes. BPM is a measure how fast or slow a song is, while song length is a measure of how short or long a song is. A musical key is sonic information contained in one of 24 possible choices (in Western Music) about a song's pitch and what chords and notes should be used, while a musical key change is going from one key to another in the same song. Importantly, multiple keys does not count "energy key changes" as defined by the dataset as "a key change that takes the song either up one or two half steps". The goal of these visualizations is to try and reveal whether creativity in songwriting has decreased over time due to less variety in these musical categories.
 
 ### Approach
 
-In the analysis, it first visualizes the standard deviation of each #1 song's BPM and length in seconds for a given year, from 1958 to 2024. Standard deviation yields a reliable measure of variability; a high standard deviation indicates that songs varied in speed and length that year, while a lower standard deviation indicates songs tended to be the same that year. The visualization displays the the result of this calculation on a faceted line plot, with BPM in the top row and song length in the bottom row, with a single point for each year. A trend line has been added to better visualize the changes over time.
+In the analysis, it first visualizes the standard deviation of each #1 song's BPM and length in seconds for a given year, from 1958 to 2024. Standard deviation yields a reliable measure of variability; a high standard deviation indicates that songs varied in speed and length in a year, while a lower standard deviation indicates songs tended to have the same speed and length in a year. The visualization displays the the result of this calculation on a faceted line plot, with BPM in the top row and song length in the bottom row, with a single point for each year. A trend line has been added to better visualize the changes over time.
 
-The second visualization uses two key variables and each receives their own visualization: the keys used in #1 songs and the indication of songs using multiple keys. Over 5 year periods, to improve readability, each time a key is recorded to have been used in a song, that counts as a "hit" for that key and will go into a cell of the 1st plot which is a heat map. This heat map is set up to display every possible key as a row, 5 year periods in the columns, and each cell representing the proportion of how many times that key was used in a song to how many songs hit #1 during that time frame. If over time, certain keys are selected more often than others and experimentation in songwriting wanes, that row will start to "heat up" and become distinctly yellow, as compared to blue indicating an even spread of keys utilized. Accompanying the heat map is also a line plot indicating how many #1 songs each year elected to utilize multiple keys within them, where less songs opting to change keys is an indication of less creative songwriting.
+The second visualization uses two key (ba-dum tss) variables and each receives their own visualization: the overall dsitributions of keys used in #1 songs and the number of songs using multiple keys. Over 5 year periods, to improve readability, each time a key is recorded to have been used in a song, that counts as a "hit" for that key and will go into a cell of the 1st plot which is a heat map. This heat map is set up to display every possible key as a row, 5 year periods in the columns, and each cell representing the proportion of how many times that key was used in a song to how many songs hit #1 during that time frame. If over time, certain keys are selected more often than others and experimentation in songwriting wanes, that row will start to "heat up" and become distinctly yellow, as compared to blue indicating an even spread of keys utilized. Accompanying the heat map is also a line plot indicating how many #1 songs each year elected to utilize multiple keys within them, where less songs opting to change keys is an indication of less creative songwriting.
 
 ### Analysis
 
@@ -123,7 +273,6 @@ ggplot(bpm_length, aes(x = year, y = sd, color = category)) +
     panel.grid.minor.y = element_blank(),
     legend.position = "none"
   )
-
 ```
 
 ```{r}
@@ -175,10 +324,19 @@ ggplot(keys_count_norm, aes(x = year_label, y = keys, fill = prop)) +
     color = "red",
     linewidth = 1
   ) +
+  annotate(
+    "text",
+    x = 8.6,   
+    y = 23,
+    label = "1995",
+    color = "red",
+    angle = 0,
+    hjust = 0
+  ) +
   labs(
     fill = "Proportion of Songs\nin that Key",
-    title = "Frequency of Music Key in #1 Songs",
-    subtitle = "Grouped Every 5 Years, Normalized to the Amount of #1 Songs in that Group",
+    title = "Frequency of Musical Keys in #1 Songs",
+    subtitle = "Grouped Every 5 Years, Normalized to the Amount of #1 Songs in each Group",
     caption = "From 1958 to 2024",
     x = "Year",
     y = "Musical Key\n(Descending Order)"
@@ -189,7 +347,7 @@ ggplot(keys_count_norm, aes(x = year_label, y = keys, fill = prop)) +
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank(),
     panel.grid.major.y = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
 # count the use of multiple keys
@@ -223,120 +381,10 @@ ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
 
 The results of these visualizations are very interesting. In the BPM and song length category, when looking at the progression of standard deviation over time, there is a clear overall trend but it is neither positive nor negative. There's clear fluctuations from year to year, but the most apparent observation is that the trend line for both categories is totally flat! This indicates that there has been no meaningful localization of song speed and length over the last 60 years, and it appears that #1 songs continue to have the same diversity of BPM and song length today as it did in 1958.
 
-On the keys heat map, it appears that there is a clear distinction of 2 periods, one before 1995 and one after, marked on the plot with a red line for visual clarity. Before 1995, there are clear "hot spots" of popular keys during this era, indicated by the yellow rows, such as the key of C for example. But suddenly, after 1995, all of the hot spots seem to disappear. Across the entire keys spectrum the heat map has turned mostly blue, indicating a wide spread of differnet keys used in #1 songs, and that songwriting has become more diverse and varied in modern times.
+On the keys heat map, it appears that there is a clear distinction of 2 periods, one before 1995 and one after, marked on the plot with a red line for visual clarity. Before 1995, there are clear "hot spots" of popular keys during this era, indicated by the yellow rows, such as the key of C for example. But suddenly, after 1995, all of the hot spots seem to dissipate. Across the entire keys spectrum the heat map has turned mostly blue, indicating a wide spread of different keys used in #1 songs, and that songwriting has become more diverse and varied in modern times.
 
-The only indication that songwriting has become less creative over time is in the multiple keys visualization. This plot clearly shows via a trend line that over time, the number of #1 songs willing to incorporate multiple keys has decreased. There was even a stretch in the 2000's to 2010's era that no #1 songs changed keys at all. This so far has been the only indication that over time, American Popular music has begun to sound homogeneous, while the other visualizations seemed to indicate no change, or even an increase in musical diversity.
-
-## Has the diversity of record labels that produce American popular music decreased over time?
-
-### Introduction
-
-### Approach
-
-### Analysis
-
-```{r}
-#| warning: FALSE
-#| echo: TRUE
-
-label_data <- billboard |> # data wrangling
-  select("weeks_at_number_one", "date", "label", "parent_label") |> # isolating variables
-  mutate(year = year(ymd_hms(date))) |> # convert to year 
-  filter(year != 2025) |>
-  separate_rows(label, sep = ";") 
-
-
-# Find labels with fewer than 25 total weeks across all years
-small_labels <- label_data |>
-  group_by(label) |>
-  summarise(
-    total_weeks = sum(weeks_at_number_one),
-    .groups = "drop"
-  ) |>
-  filter(total_weeks < 52) |>
-  pull(label)
-
-# filter out small labels and then proportions plot across all years
-record_label <- label_data |>
-  mutate(year_group = (year %/% 5) * 5) |>
-  mutate(label = ifelse(label %in% small_labels, "Other", "Top 15")) |>
-  mutate(label = fct_relevel(label, "Other", after = Inf)) |>
-  group_by(year_group, label) |>
-  summarise(
-    weeks_at_number_one = sum(weeks_at_number_one),
-    .groups = "drop"
-  ) 
-
-ggplot(record_label, aes(x = year_group, y = weeks_at_number_one, fill = label)) +
-  geom_col(position = "fill") +
-  geom_hline(
-    yintercept = 0.5,
-    color = "red",
-    linewidth = 1
-  ) +
-  annotate(
-    "text",
-    x = -Inf,
-    y = 0.5,
-    label = "50% of Weeks",
-    hjust = -0.3,
-    vjust = -0.5,
-    color = "red"
-  ) +
-  scale_y_continuous(
-    labels = label_percent(),
-    name = "Weeks at Number One"
-  ) +
-  scale_fill_viridis_d() +
-  theme_minimal()
-  
-
-
-parent_label_data <- label_data |>
-  mutate(year_group = (year %/% 5) * 5) |>
-  add_count(parent_label, name = "count") |> # getting count of variables
-  mutate(parent_label = ifelse(
-    year_group == max(year_group), # if last group
-    case_when( # special labeling for last group year
-      parent_label == "Sony" ~ parent_label,
-      parent_label == "Vivendi" ~ parent_label,
-      parent_label == "Warner Bros." ~ parent_label,
-      parent_label == "Universal" ~ parent_label,
-      TRUE ~ "Other"
-    ),
-    ifelse(count < 100, "Other", parent_label) # normal rule
-  )) |>
-  mutate(parent_label = fct_relevel(parent_label, "Other", after = Inf)) |>
-  group_by(year_group, parent_label) |>
-  summarise(
-    weeks_at_number_one = sum(weeks_at_number_one),
-    .groups = "drop"
-  ) 
-
-ggplot(parent_label_data, aes(x = year_group, y = weeks_at_number_one, fill = parent_label)) +
-  geom_col(position = "fill") +
-  geom_hline(
-    yintercept = 0.25,
-    color = "red",
-    linewidth = 1
-  ) +
-  annotate(
-    "text",
-    x = -Inf,
-    y = 0.25,
-    label = "25% of Weeks",
-    hjust = -0.3,
-    vjust = -0.5,
-    color = "red"
-  ) +
-  scale_y_continuous(
-    labels = label_percent(),
-    name = "Weeks at Number One"
-  ) +
-  scale_fill_viridis_d() +
-  theme_minimal()
-```
-
-### Discussion
+The only indication that songwriting has become less creative over time is in the multiple keys visualization. This plot clearly shows via a trend line that over time, the amount of #1 songs willing to incorporate multiple keys has decreased. There was even a stretch in the 2000's to 2010's era that no #1 songs changed keys at all. This so far has been the only indication that over time, American Popular music has begun to sound homogeneous, while the other visualizations seemed to indicate no change, or even an increase in musical diversity.
 
 ## Conclusion
+
+The data presented here reflects back on the initial proposal in an interesting way. The results of the data show that over time, the amount of independent record labels and parent companies that are making American popular music have decreased. This is especially apparent in the few monolithic parent companies that own a large number of mainstream record labels. The musical diversity data however, does not make a compelling case that American popular music is growing more homogeneous. In fact, in some cases it actually points to popular songwriting becoming more creative and interesting, from a statistical perspective. More insights are needed onto what effect the centralization of #1 song making in America to a few powerful companies is having on music that the general populace listens to and enjoys.

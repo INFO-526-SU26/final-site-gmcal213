@@ -63,11 +63,11 @@ With this dataset I aim to answer the following two questions about the American
 
 ## Analysis plan
 
-The analysis for both of these questions will involve time along the x-axis, grouped by year. Drawing back on my previous experiences when studying this topic, I find it most interesting to observe trends as they occur at different points in history. This is the only variable that these two questions will share. There is a variable named "date" that informs when a song first hit #1 on the charts, and is captured in a standard "date" format as day-month-year (i.e. 03-Sep-76).
+The analysis for both of these questions will involve time along the x-axis, grouped by year. Drawing back on my previous experiences when studying this topic, I find it most interesting to observe trends as they occur at different points in history. This is the only variable that these two questions will share. There is a variable named "date" that informs when a song first hits #1 on the charts, and is captured in a standard "date" format as day-month-year (i.e. 03-Sep-76).
 
 ### Diversity in Producing Popular Music
 
-To measure the diversity of who is producing popular music in America, the following three variables will be used:
+To measure the diversity of who is producing popular music in America, the following three variables will be used to produce 2 charts:
 
 - Weeks at Number One
 - Label
@@ -75,22 +75,22 @@ To measure the diversity of who is producing popular music in America, the follo
 
 Rather than simply counting how many times a Record Label company shows up when a new song hits #1, I will use the "Weeks at Number One" variable to get a true sense of how much "market share" companies have over the time they have spent with one of their artists at the #1 spot. The "Label" variable represents the primary record label that released the song, while "Parent Label" is a larger parent company that owns the record label, if any.
 
-I will produce two charts to answer this question. Both charts will be a 100% proportion bar chart of the weeks at number one held by a record label and a parent label over time. To avoid the chart being unnecessarily busy, and highlight the centralization of record/parent labels, I will group the top majority of labels together and plot their share of the time at #1 against all of the other "Independent" labels.
+I will produce two charts to answer this question. Both charts will be a 100% proportion bar chart of the weeks at number one held by a record label and a parent label over time, grouped by 5 year intervals. To avoid the chart being unnecessarily busy, and highlight the centralization of record/parent labels, I will group the top majority of labels together and plot their share of the time at #1 against all of the other "Independent" labels.
 
 ### Homogeneity in Popular Music
 
-How do you measure how "similar" two songs are to each other? To do this, I will employ 3 variables that are labeled as "Musical Info" by the dataset and produce 2-3 charts. These variables are:
+How do you measure how "similar" two songs are to each other? To do this, I will employ 4 variables that are labeled as "Musical Info" by the dataset and produce 3 charts. These variables are:
 
 - Keys
 - Song Length in Seconds
 - Simplified Key
 - BPM
 
-The first chart will be taking a look at the BPM (beats per minute) and song length in seconds of #1 songs over time. BPM is a measure of how fast or slow a song is, and song length is a measure how short or long a song is. To measure how similar or dissimilar #1 songs are growing over time with these metrics I will plot the standard deviation of BPMs and song lengths over time on a line graph.
+The first chart will be taking a look at the BPM (beats per minute) and song length in seconds of #1 songs over time. BPM is a measure of how fast or slow a song is, and song length is a measure how short or long a song is. To measure how similar or dissimilar #1 songs are growing over time with these metrics, I will plot the standard deviation of BPMs and song lengths over time on a line graph.
 
 Using the "Keys" and "Simplified Key" variables, I aim to show how the distribution of keys used in #1 songs over time has changed, and whether the distribution has grown wider or smaller. A musical key, is, very simply, one of 24 possible symbols corresponding to the twelve notes of Western Music that determines a set of a chords and sounds a song should use.
 
-To do this, I will use a heat map of the number of times each musical key was used in a #1 song, grouped by 5 year intervals. This will show if there are hot spots of keys favored by artists and songwriters. This question is made a bit more interesting when one considers that certain songs may use multiple Kkeys, differentiated in the dataset as "Multiple Keys" from the simplified key variable. Further, a song can be labelled with what's known as just an "energy key change", in which case it is not counted as truly using multiple keys. If song uses multiple keys, all instances of those keys will be accounted for in the heat map. I will use songs that are listed as having "Multiple Keys" on an auxiliary line graph by the plotting number of songs that employ multiple keys over time.
+To do this, I will use a heat map of the number of times each musical key was used in a #1 song, grouped by 5 year intervals. This will show if there are hot spots of keys favored by artists and songwriters. This question is made a bit more interesting when one considers that certain songs may use multiple keys, differentiated in the dataset as "Multiple Keys" from the simplified key variable. Further, a song can be labelled with what's known as just an "energy key change", in which case it is not counted as truly using multiple keys. If a song uses multiple keys, all instances of those keys will be accounted for in the heat map. I will use songs that are listed as having "Multiple Keys" on an auxiliary line graph by plotting the number of #1 songs that employ multiple keys over time.
 
 ## Weekly Time Table
 
