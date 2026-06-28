@@ -57,9 +57,9 @@ billboard <- read.csv(here("data", "billboard.csv")) |>
 
 ## Abstract
 
-This project aims to answer two questions regarding how the nature of American Popular music has changed over time. It does this via a data scientific approach, examining data on each #1 song as defined by the Billboard Hot 100 list from 1958 to 2024. The two questions answered by this project are "Has the diversity of record labels that produce American popular music decreased over time?" and "Has American popular music grown more homogeneous over time?".\
-\
-To answer question one, two 100% bar charts of the time spent at the #1 song spot by record labels and their parent copmanies are shown. To answer question two, a chart showing the standard deviation of #1 songs BPMs and song lengths are shown, as well as a heat map of musical keys used by #1 songs augmented by a line chart of how many #1 songs that utilize multiple keys are shown. The results of the data show that the diversity of labels producing American popular music have decreased, while American popular music song diversity has largely remained the same, and in some cases, even increased in variety.
+This project aims to answer two questions regarding how the nature of American Popular music has changed over time. It does this via a data scientific approach, examining data on each #1 song as defined by the Billboard Hot 100 list from 1958 to 2024. The two questions answered by this project are "Has the diversity of record labels that produce American popular music decreased over time?" and "Has American popular music grown more homogeneous over time?"
+
+To answer question one, two 100% bar charts of the time spent at the #1 song spot by record labels and their parent companies are shown. To answer question two, a chart showing the standard deviation of #1 songs BPMs and song lengths are shown, as well as a heat map of musical keys used by #1 songs augmented by a line chart of how many #1 songs that utilize multiple keys are shown. The results of the data show that the diversity of labels producing American popular music have decreased, while American popular music song diversity has largely remained the same, and in some cases, even increased in variety.
 
 ## Introduction
 
@@ -82,6 +82,7 @@ For record labels, if over 66 years a particular record label spent 1 year or le
 ### Analysis
 
 ```{r}
+#| label: label-parent-viz
 #| warning: FALSE
 #| echo: TRUE
 
@@ -388,3 +389,5 @@ The only indication that songwriting has become less creative over time is in th
 ## Conclusion
 
 The data presented here reflects back on the initial proposal in an interesting way. The results of the data show that over time, the amount of independent record labels and parent companies that are making American popular music have decreased. This is especially apparent in the few monolithic parent companies that own a large number of mainstream record labels. The musical diversity data however, does not make a compelling case that American popular music is growing more homogeneous. In fact, in some cases it actually points to popular songwriting becoming more creative and interesting, from a statistical perspective. More insights are needed onto what effect the centralization of #1 song making in America to a few powerful companies is having on music that the general populace listens to and enjoys.
+
+## Appendix

@@ -1,5 +1,5 @@
 ---
-title: "How the American Music Industry has Changed"
+title: "Chart Toppers - Proposal"
 subtitle: "A look at #1 Hit Songs in the U.S."
 author: 
   - name: "Gavin Caldwell"
@@ -40,7 +40,7 @@ The origins of this dataset are by and large the work of one person: Chris Dalla
 
 > 7 years ago, I decided that I was going to listen to every number one hit. Along the way, I tracked an absurd amount of information about each song. Using that information, I wrote a data-driven history of popular music covering 1958 through today.
 
-His website, *Can't Get Much Higher*, where you can buy the data-science book he wrote based off his endeavor, and check out his other work, is linked [here](https://www.cantgetmuchhigher.com). The dataset was then uploaded to the TidyTuesday 2025 dataset by [Jen Richmond](https://github.com/jenrichmond).
+His website, *Can't Get Much Higher*, where you can buy the data-science book he wrote based off his endeavor, and check out his other work, is linked [here](https://www.cantgetmuchhigher.com). The dataset was then uploaded to the [TidyTuesday 2025 Project](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-08-26/readme.md) by [Jen Richmond](https://github.com/jenrichmond).
 
 This dataset interested me because I absolutely love music and am often fascinated by the developments of genres and music trends over time. Back in my undergraduate degree I took a gen-ed course entitled [*MUS109 - American Popular Music and Society*](https://catalog.arizona.edu/courses/0230671/general-aoYks), which dove into the most popular genre in American music of each decade starting in the early 1900's to today, and this dataset sparked a similar curiosity as that class did.
 

@@ -1,15 +1,15 @@
 ---
-title: "Project title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
-author: "Author names"
+title: "Chart Toppers"
+subtitle: "INFO 526 - Summer 2026 - Final Project"
+author: "Gavin Caldwell"
 title-slide-attributes:
   data-background-image: images/music_presentation_background.jpg
   data-background-size: stretch
-  data-background-opacity: "0.7"
   data-slide-number: none
 format:
   revealjs:
     theme:  ['data/customtheming.scss']
+    footer: '[Project Home](index.html)'
   
 editor: visual
 execute:
@@ -22,7 +22,8 @@ execute:
 
 # Load packages here
 pacman::p_load(tidymodels,
-               tidyverse)
+               tidyverse,
+               here)
 
 ```
 
@@ -46,11 +47,74 @@ knitr::opts_chunk$set(
 #| label: load-data
 #| include: false
 # Load data here
+# load dataset
+
 data(mtcars)
 mtcars$speed <- mtcars$hp / mtcars$wt
 
 data("penguins")
+
+# read in csv for each question
+billboard <- read.csv(here("data", "billboard.csv")) |>
+  mutate(year = year(ymd_hms(date))) |> # convert to year 
+  filter(year != 2025) # filter out 2025 (only one song)
 ```
+
+# Introduction {background-image='images/music_presentation_background.jpg'}
+
+## Introduction {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+
+- How has the American Music Industry changed in the last 60 years?
+
+- Dataset of every #1 Song on Billboard Hot 100 from 1958 to 2024
+
+- Curated by Chris Dalla Riva 
+
+- Uploaded to the TidyTuesday 2025 project by Jen Richmond
+
+## The Data {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+
+- A glimpse at the data:
+```{r}
+#| label: glimpse-the-data
+#| message: FALSE
+
+glimpse(billboard)
+
+```
+
+## Motivations {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+
+::: {.incremental}
+
+- I have always enjoyed music
+- Interested in the history of music and genre trends
+- Curious how centralized the American Music Industry is, and what effect, if any, it has on songwriting
+
+:::
+
+## The Questions {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+
+::: {.incremental}
+
+- "Has the diversity of record labels that produce American popular music decreased over time?"
+- "Has American popular music grown more homogeneous over time?"
+
+:::
+
+# Question 1 {background-image='images/music_presentation_background.jpg'}
+
+# Question 2 {background-image='images/music_presentation_background.jpg'}
+
+## References
+
+- Chris's Website: [Can't Get Much Higher](https://www.cantgetmuchhigher.com/)
+
+- Tidy Tuesday 2025: [Billboard Hot 100 Number Ones](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-08-26/readme.md)
+
+- Jen Richmond: [Github Page](https://github.com/jenrichmond)
+
+- CNBC Article: [Describing Universal's spin off from Vivendi](https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d)
 
 # Using Quarto for presentations
 
@@ -134,9 +198,6 @@ penguins |>
   kableExtra::kable_styling()
 ```
 
-## Images
-
-![Image credit: Danielle Navarro, Percolate.](images/watercolour_sys02_img34_teacup-ocean.png){fig-align="center" width="500"}
 
 ## Math Expressions {.smaller}
 
