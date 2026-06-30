@@ -65,7 +65,7 @@ To answer question one, two 100% bar charts of the time spent at the #1 song spo
 
 The American Music industry is an incredibly influential source of culture and inspiration for millions if not billions of people around the globe, and it has changed a lot over the last 75 years. One can look to data science to help visualize and understand these changes. Using a dataset encompassing an impressive amount of information on each song that ever went #1 on the Billboard Hot 100 list from 1958 to 2024, this project aims to answer two questions about American Popular Music: "Has the diversity of record labels that produce American popular music decreased over time?" and "Has American popular music grown more homogeneous over time?"
 
-The dataset used for this project is by and large the work of one person: Chris Dalla Riva. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of diversity and homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced them. The inspiration for these two questions come from the idea that if the number of distinct corporations producing popular music in America have decreased, it could discourage creativity and experimentation in songwriting, and lead to the most popular songs eventually all sounding the "same." The data presented here will aim to provide insight to this idea and whether it holds merit.
+The dataset used for this project is by and large the work of one person: Chris Dalla Riva^1^, uploaded to the Tidy Tuesday 2025^2^ project by Jen Richmond^3^. It includes information about each songs' musical structure, its genre, who performed it, who produced it, and even some obscure data such as if it was made for a movie or a play. This question of diversity and homogeneity in popular music will be answered by looking to each songs' musical structure as well as the organizations that produced them. The inspiration for these two questions come from the idea that if the number of distinct corporations producing popular music in America have decreased, it could discourage creativity and experimentation in songwriting, and lead to the most popular songs eventually all sounding the "same." The data presented here will aim to provide insight to this idea and whether it holds merit.
 
 ## Has the diversity of record labels that produce American popular music decreased over time?
 
@@ -91,7 +91,7 @@ label_data <- billboard |> # data wrangling
   separate_rows(label, sep = ";") 
 
 
-# Find labels with fewer than 25 total weeks across all years
+# Find labels with fewer than 52 total weeks across all years
 small_labels <- label_data |>
   group_by(label) |>
   summarise(
@@ -216,7 +216,7 @@ ggplot(parent_label_data, aes(x = year_label, y = weeks_at_number_one, fill = pa
 
 The results of both visualizations represent similar trends in American Popular music production. For record labels, ever since 1960 the presence of independent labels have steadily decreased, hitting an all time low in 1985-1989. There was a movement upward from this through 1990 to 2010, but has since dropped back down. Today, less than half of the weeks taken up by #1 songs are made outside of the top 15 most influential record labels. For parent companies, it is even worse.
 
-At the turn of the century, independent parent companies share of #1 song time plummeted, overtaken by French superpower Vivendi. Since then, less than 25% percent of the share of #1 song time is taken up by a company other than Sony, Universal, Warner Bros, or Vivendi. Universal was not filtered with the same criteria as the other Independent companies, which used the less than 2 total years at the #1 song measure. The reason for this is for a long time Universal was a subsidiary of Vivendi. But, in 2021, as described in this [article](https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d), Vivendi allowed Universal to "spin off" and become its own entity, which immediately skyrocketed it as a dominant force in the Parent Company market share. These two visualizations show the decrease in diversity of companies producing American Popular music.
+At the turn of the century, independent parent companies share of #1 song time plummeted, overtaken by French superpower Vivendi. Since then, less than 25% percent of the share of #1 song time is taken up by a company other than Sony, Universal, Warner Bros, or Vivendi. Universal was not filtered with the same criteria as the other Independent companies, which used the less than 2 total years at the #1 song measure. The reason for this is for a long time Universal was a subsidiary of Vivendi. But, in 2021, Vivendi allowed Universal to "spin off" and become its own entity^4^, which immediately skyrocketed it as a dominant force in the Parent Company market share. These two visualizations show the decrease in diversity of companies producing American Popular music.
 
 ## Has American popular music grown more homogeneous over time?
 
@@ -390,4 +390,14 @@ The only indication that songwriting has become less creative over time is in th
 
 The data presented here reflects back on the initial proposal in an interesting way. The results of the data show that over time, the amount of independent record labels and parent companies that are making American popular music have decreased. This is especially apparent in the few monolithic parent companies that own a large number of mainstream record labels. The musical diversity data however, does not make a compelling case that American popular music is growing more homogeneous. In fact, in some cases it actually points to popular songwriting becoming more creative and interesting, from a statistical perspective. More insights are needed onto what effect the centralization of #1 song making in America to a few powerful companies is having on music that the general populace listens to and enjoys.
 
-## Appendix
+## References
+
+1.  Riva, C. D. (2023). Can’t Get Much Higher \| Chris Dalla Riva \| Substack. Cantgetmuchhigher.com. https://www.cantgetmuchhigher.com/
+
+2.  rfordatascience. (2025). *tidytuesday/data/2025/2025-08-26/readme.md at main · rfordatascience/tidytuesday*. GitHub. https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-08-26/readme.md
+
+3.  *jenrichmond - Overview*. (2025). GitHub. https://github.com/jenrichmond
+
+4.  Smith, E. (2021, June 22). *Vivendi shareholders back spin-off of flagship Universal Music Group*. CNBC. https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d
+
+    ‌

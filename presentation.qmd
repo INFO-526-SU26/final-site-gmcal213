@@ -23,7 +23,11 @@ execute:
 # Load packages here
 pacman::p_load(tidymodels,
                tidyverse,
-               here)
+               here,
+               lubridate,
+               stringr,
+               scales,
+               patchwork)
 
 ```
 
@@ -60,21 +64,22 @@ billboard <- read.csv(here("data", "billboard.csv")) |>
   filter(year != 2025) # filter out 2025 (only one song)
 ```
 
-# Introduction {background-image='images/music_presentation_background.jpg'}
+# Introduction {background-image="images/music_presentation_background.jpg"}
 
-## Introduction {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+## Introduction {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
 
 - How has the American Music Industry changed in the last 60 years?
 
 - Dataset of every #1 Song on Billboard Hot 100 from 1958 to 2024
 
-- Curated by Chris Dalla Riva 
+- Curated by Chris Dalla Riva^1^
 
-- Uploaded to the TidyTuesday 2025 project by Jen Richmond
+- Uploaded to the TidyTuesday 2025 project^2^ by Jen Richmond^3^
 
-## The Data {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+## The Data {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
 
 - A glimpse at the data:
+
 ```{r}
 #| label: glimpse-the-data
 #| message: FALSE
@@ -83,38 +88,424 @@ glimpse(billboard)
 
 ```
 
-## Motivations {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+## Motivations {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
 
-::: {.incremental}
-
+::: incremental
 - I have always enjoyed music
 - Interested in the history of music and genre trends
 - Curious how centralized the American Music Industry is, and what effect, if any, it has on songwriting
-
 :::
 
-## The Questions {background-image='images/elegant-white-background-with-blue-wave-lines.jpg'}
+## The Questions {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
 
-::: {.incremental}
+:::: incremental
+::: {style="font-size: 0.8em;"}
 
 - "Has the diversity of record labels that produce American popular music decreased over time?"
+
+  - Record Labels "time-share" of #1 Songs
+
+  - Parent Companies "time-share" of #1 Songs
+
 - "Has American popular music grown more homogeneous over time?"
+
+  - BPM
+
+  - Song Length
+
+  - Musical Key
+
+  - Number of Key Changes in Songs
+  
+:::
+::::
+
+# Record/Parent Label Diversity {background-image="images/music_presentation_background.jpg"}
+
+## Record Labels Share of #1 Songs {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
+
+::::: columns
+::: {.column width="60%"}
+```{r}
+#| label: label-viz
+#| warning: FALSE
+#| echo: FALSE
+
+label_data <- billboard |> # data wrangling
+  select("weeks_at_number_one", "year", "label", "parent_label") |> # isolating variables
+  separate_rows(label, sep = ";") 
+
+
+# Find labels with fewer than 52 total weeks across all years
+small_labels <- label_data |>
+  group_by(label) |>
+  summarise(
+    total_weeks = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) |>
+  filter(total_weeks < 52) |>
+  pull(label)
+
+# filter out small labels and then proportions plot across all years
+record_label <- label_data |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  mutate(label = ifelse(label %in% small_labels, "Independent", "Top 15")) |>
+  mutate(label = fct_relevel(label, "Independent", after = Inf)) |>
+  group_by(year_label, label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(record_label, aes(x = year_label, y = weeks_at_number_one, fill = label)) +
+  geom_col(position = "fill") +
+  geom_hline(
+    yintercept = 0.5,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.5,
+    label = "50% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Percent of Weeks at Number One"
+  ) +
+  scale_fill_viridis_d(
+    name = NULL
+  ) +
+  labs(
+    title = "Record Labels Time at #1 Song",
+    subtitle = "Meaured by weeks, grouped every 5 years",
+    caption = "From 1958 to 2024",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+:::
+
+::: {.column width="40%"}
+- Measured by Weeks Every 5 years
+- Top 15 Record Labels Grouped Together
+- Any record label with less than one year share of #1 Song spot over 60 years labeled as "Independent"
+:::
+:::::
+
+## Parent Labels Share of #1 Songs {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
+
+::::: columns
+::: {.column width="60%"}
+```{r}
+#| label: parent-viz
+#| warning: FALSE
+#| echo: FALSE
+
+parent_label_data <- label_data |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  add_count(parent_label, name = "count") |> # getting count of variables
+  mutate(parent_label = ifelse(
+    year_group == max(year_group), # if last group
+    case_when( # special labeling for last group year
+      parent_label == "Sony" ~ parent_label,
+      parent_label == "Vivendi" ~ parent_label,
+      parent_label == "Warner Bros." ~ parent_label,
+      parent_label == "Universal" ~ parent_label,
+      TRUE ~ "Independent"
+    ),
+    ifelse(count < 104, "Independent", parent_label) # normal rule
+  )) |>
+  mutate(parent_label = fct_relevel(parent_label, "Independent", after = Inf)) |>
+  group_by(year_label, parent_label) |>
+  summarise(
+    weeks_at_number_one = sum(weeks_at_number_one),
+    .groups = "drop"
+  ) 
+
+ggplot(parent_label_data, aes(x = year_label, y = weeks_at_number_one, fill = parent_label)) +
+  geom_col(position = "fill") +
+  geom_hline(
+    yintercept = 0.25,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = -Inf,
+    y = 0.25,
+    label = "25% of Weeks",
+    hjust = -0.3,
+    vjust = -0.5,
+    color = "red"
+  ) +
+  scale_y_continuous(
+    labels = label_percent(),
+    name = "Percent of Weeks at Number One"
+  ) +
+  scale_fill_viridis_d(
+    name = NULL
+  ) +
+  labs(
+    title = "Parent Companies Time at #1 Song",
+    subtitle = "Meaured by weeks, grouped every 5 years",
+    caption = "From 1958 to 2024",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)    
+  )
+
+```
+:::
+
+::: {.column width="40%"}
+::: {style="font-size: 0.8em;"}
+- Measured by Weeks Every 5 years
+- Top 4 Parent Companies Identified
+- Any parent company with less than 2 years share of #1 Song spot over 60 years labeled as "Independent"
+- Exception is Universal, who spun off from Vivendi in 2021^4^
+:::
+:::
+:::::
+
+# #1 Song Musical Homogeneity {background-image="images/music_presentation_background.jpg"}
+
+## BPM and Song Length Standard Deviation {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
+
+::::: columns
+::: {.column width="60%"}
+
+```{r}
+#| label: bpm-viz
+#| warning: FALSE
+#| echo: FALSE
+
+# read in data
+bpm_length <- billboard |> # data wrangling
+  select("song", "year", "bpm", "length_sec") |> # isolating variables
+  pivot_longer( # pivoting longer for bpm and song length
+    cols = c(bpm, length_sec),
+    names_to = "category",
+    values_to = "value"
+  ) |>
+  group_by(year, category) |> # grouping by year and category for Standard Deviation category
+  summarise(sd = sd(value, na.rm = TRUE)) # calculating standard deviation
+
+ggplot(bpm_length, aes(x = year, y = sd, color = category)) +
+  geom_line() +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(
+    ~ category, 
+    ncol = 1,
+    labeller = as_labeller(c(
+      bpm = "Beats Per Minute",
+      length_sec = "Song Length"
+    ))) + 
+  theme_minimal() +
+  labs(
+    title = "Standard Deviation of Each #1 Song's BPM and Length",
+    subtitle = "Standard Deviations Calculated per Year",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Standard Deviation"
+  ) +
+  scale_color_viridis_d() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "none"
+  )
+
+```
 
 :::
 
-# Question 1 {background-image='images/music_presentation_background.jpg'}
+::: {.column width="40%"}
 
-# Question 2 {background-image='images/music_presentation_background.jpg'}
+- BPM and Song Length Standard Deviation
+- Trend Line Added
+- Reported for every year
 
-## References
+:::
+:::::
 
-- Chris's Website: [Can't Get Much Higher](https://www.cantgetmuchhigher.com/)
+## Musical Key Frequency and Key Changes {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
 
-- Tidy Tuesday 2025: [Billboard Hot 100 Number Ones](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-08-26/readme.md)
+:::: columns
+::: {.column width="50%"}
 
-- Jen Richmond: [Github Page](https://github.com/jenrichmond)
+```{r}
+#| label: keys-viz
+#| warning: FALSE
+#| echo: FALSE
+#| fig-height: 8
+#| fig-width: 8
 
-- CNBC Article: [Describing Universal's spin off from Vivendi](https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d)
+# count number of songs per year
+songs_per_year <- billboard |>
+  mutate(year_group = (year %/% 5) * 5) |>
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  distinct(song, year_label) |>
+  count(year_label, name = "n_songs")
+
+# count the use of keys
+keys_count <- billboard |>
+  select("song", "year", "keys") |> # isolating variables
+  mutate(year_group = (year %/% 5) * 5) |> # Group every 5 years
+  mutate(year_label = paste0(year_group, "-", year_group + 4)) |>
+  mutate(keys = str_remove_all(keys, "&")) |>
+  mutate(keys = str_remove_all(keys, "%")) |> # cleaning up keys variable
+  separate_rows(keys, sep = ";") |> # enumerate all keys used in song
+  count(year_label, keys, name = "n_keys") |> # count the times a key was used in a given year 
+  complete(year_label, keys, fill = list(n_keys = 0)) |> # fill in missing keys with 0 for plotting purposes
+  mutate(
+    keys = factor(
+      keys,
+      levels = c(
+        "Abm", "Ab", "Am", "A",
+        "Bbm", "Bb", "Bm", "B",
+        "Cm", "C", 
+        "Dbm", "Db", "Dm", "D",
+        "Ebm", "Eb", "Em", "E",
+        "Fm", "F",
+        "Gbm", "Gb", "Gm", "G")
+    )
+  )
+
+# normalize key count per year
+keys_count_norm <- keys_count |>
+  left_join(songs_per_year, by = "year_label") |>
+  mutate(prop = n_keys / n_songs)
+  
+ggplot(keys_count_norm, aes(x = year_label, y = keys, fill = prop)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "cividis", labels = label_percent()) +
+  geom_vline(
+    xintercept = 8.5,
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = 8.6,   
+    y = 23,
+    label = "1995",
+    color = "red",
+    angle = 0,
+    hjust = 0
+  ) +
+  labs(
+    fill = "Proportion of Songs\nin that Key",
+    title = "Frequency of Musical Keys in #1 Songs",
+    subtitle = "Grouped Every 5 Years, Normalized to the Amount of #1 Songs in each Group",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Musical Key\n(Descending Order)"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+
+```
+
+::: {style="font-size: 0.6em;"}
+- Heatmap of Keys Used Every Year
+- Diversity of key selection increases after 1995
+:::
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| label: multiple-keys-viz
+#| warning: FALSE
+#| echo: FALSE
+#| fig-height: 8
+#| fig-width: 8
+
+# count the use of multiple keys
+multiple_keys_count <- billboard |>
+  select("song", "year", "simplified_key") |> # isolating variables
+  group_by(year) |>
+  summarize(multiple_keys = sum(
+    simplified_key == "Multiple Keys", 
+    na.rm = TRUE)
+  )
+
+ggplot(multiple_keys_count, aes(x =  year, y = multiple_keys)) +
+  geom_line() +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Number of Times Multiple Keys are Used in #1 Songs",
+    subtitle = "Counted per Year",
+    caption = "From 1958 to 2024",
+    x = "Year",
+    y = "Number of Times Multiple Keys are Used"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+```
+
+::: {style="font-size: 0.6em;"}
+- Number of #1 Songs using multiple keys decreases over time 
+:::
+
+:::
+::::
+
+# Conclusions {background-image="images/music_presentation_background.jpg"}
+
+## Conclusions {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
+
+:::: incremental
+
+- The results of these visualizations leave the original idea of this proposal in an interesting place
+- It does appear that record labels and especially parent companies are becoming more centralized
+- But does not appear to have a quantifiable effect on songwriting
+- More insights needed on what the effects of a centralized American Music Industry are
+
+::::
+
+## References {background-image="images/elegant-white-background-with-blue-wave-lines.jpg"}
+
+1.  Chris's Website: [Can't Get Much Higher](https://www.cantgetmuchhigher.com/)
+2.  Tidy Tuesday 2025: [Billboard Hot 100 Number Ones](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-08-26/readme.md)
+3.  Jen Richmond: [Github Page](https://github.com/jenrichmond)
+4.  CNBC Article: [Describing Universal's spin off from Vivendi](https://www.cnbc.com/2021/06/22/vivendi-awaits-key-shareholder-vote-on-universal-music-group-spin-off.html?msockid=26f73f417e226c542cfc29717f5d6d8d)
+
+# Thank you! {background-image="images/music_presentation_background.jpg"}
 
 # Using Quarto for presentations
 
@@ -197,7 +588,6 @@ penguins |>
   kableExtra::kable() |>
   kableExtra::kable_styling()
 ```
-
 
 ## Math Expressions {.smaller}
 
